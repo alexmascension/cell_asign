@@ -1,1 +1,4 @@
 scanpy
+scipy
+numpy
+pandas
