@@ -3,7 +3,7 @@ from scipy.sparse import csr_matrix
 
 
 def assign_cats(adata, dict_cats, column_groupby='leiden', quantile_gene_sel=0.7, do_return=False, intermediate_states=False, diff=0.05,
-                key_added='assigned_cats', min_score=0.6, others_name='unassigned'):
+                key_added='assigned_cats', min_score=0.6, others_name='unassigned', verbose=True):
     """
     This functions uses a set of genes assigned to different categories so that leiden clusters can be assigned to one of these categories.
     For example, to categorize fibroblasts from pericytes, endothelial cells, or cells with high mitochondrial content.
@@ -26,7 +26,8 @@ def assign_cats(adata, dict_cats, column_groupby='leiden', quantile_gene_sel=0.7
                     np.argsort(mat_cat[mat_cat[:, gene_idx] > 0, gene_idx]))
                 mat_cat[:, gene_idx] /= np.max(mat_cat[:, gene_idx])
             except:
-                print(f'Gene {gene} is not on the list')
+                if verbose:
+                    print(f'Gene {gene} is not on the list')
 
         sum_mat_cat = np.asarray(mat_cat.mean(1)).ravel()
         adata.obs[cat] = sum_mat_cat

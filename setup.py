@@ -2,7 +2,7 @@
 
 import os
 from setuptools import setup, find_packages
-from structure import __version__
+from cellassign import __version__
 
 
 # Utility function to read the README file.
@@ -15,7 +15,7 @@ def read(fname):
 
 # the setup
 setup(
-    name='cell_assign',
+    name='cellassign',
     version=__version__,
     description='A cell assigner for single cell.',
     # long_description=read('README'),
