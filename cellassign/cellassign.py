@@ -76,16 +76,18 @@ def assign_cats(adata, dict_cats, column_groupby='leiden', quantile_gene_sel=0.7
     adata.obs[f'{key_added}'][adata.obs[f'{key_added}_max']
                               < min_score] = others_name
     
-    
-    adata.uns['cell_assign'] = {'dict_cats': dict_cats, 
-                                'column_groupby': column_groupby, 
-                                'quantile_gene_sel': quantile_gene_sel, 
-                                'do_return': do_return, 
-                                'intermediate_states': intermediate_states, 
-                                'diff': diff,
-                                'key_added': key_added, 
-                                'min_score': min_score, 
-                                'others_name': others_name,}
+    if 'cell_assign' not in adata.uns:
+        adata.uns['cell_assign'] = {}
+        
+    adata.uns['cell_assign'][column_groupby] = {'dict_cats': dict_cats, 
+                                                'column_groupby': column_groupby, 
+                                                'quantile_gene_sel': quantile_gene_sel, 
+                                                'do_return': do_return, 
+                                                'intermediate_states': intermediate_states, 
+                                                'diff': diff,
+                                                'key_added': key_added, 
+                                                'min_score': min_score, 
+                                                'others_name': others_name,}
 
     if do_return:
         return score_per_cluster
