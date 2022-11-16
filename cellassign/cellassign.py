@@ -79,7 +79,7 @@ def assign_cats(adata, dict_cats, column_groupby='leiden', quantile_gene_sel=0.7
     if 'cell_assign' not in adata.uns:
         adata.uns['cell_assign'] = {}
         
-    adata.uns['cell_assign'][column_groupby] = {'dict_cats': dict_cats, 
+    adata.uns['cell_assign'][key_added] = {'dict_cats': dict_cats, 
                                                 'column_groupby': column_groupby, 
                                                 'quantile_gene_sel': quantile_gene_sel, 
                                                 'do_return': do_return, 
