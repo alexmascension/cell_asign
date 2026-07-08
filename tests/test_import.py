@@ -1,8 +1,9 @@
-from __future__ import annotations
+"""Smoke tests for the public package API."""
 
 import cellassign
+from cellassign import assign_cats
 
 
-def test_package_imports() -> None:
+def test_public_api_imports():
     assert cellassign.__version__ == "1.0.1"
-    assert callable(cellassign.assign_cats)
+    assert callable(assign_cats)

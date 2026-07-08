@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 from scipy import sparse
 
 
@@ -23,15 +24,10 @@ def _get_connectivities(adata):
 
 
 def _get_n_neighbors(adata, connectivities) -> float:
-    """Return the n_neighbors as a normalization factor for the joint
-    expression used to smooth out cells with extreme expression."""
+    """Return n_neighbors as a normalization factor for smoothed expression."""
     try:
         n_neighbors = adata.uns["neighbors"]["params"]["n_neighbors"]
     except KeyError:
-        # Older or manually-created AnnData objects may contain connectivities
-        # without the scanpy metadata. Falling back to the average row sum keeps
-        # the function usable for synthetic AnnData objects and preserves the
-        # idea of neighbour-count normalisation.
         row_sums = np.asarray(connectivities.sum(axis=1)).ravel()
         positive_row_sums = row_sums[row_sums > 0]
         if positive_row_sums.size == 0:
@@ -42,9 +38,22 @@ def _get_n_neighbors(adata, connectivities) -> float:
             ) from None
         n_neighbors = float(np.median(positive_row_sums))
 
-    if n_neighbors <= 0:
-        raise ValueError("n_neighbors must be a positive value")
-    return float(n_neighbors)
+    n_neighbors_array = np.asarray(n_neighbors)
+
+    if n_neighbors_array.ndim == 0:
+        n_neighbors_value = float(n_neighbors_array)
+    elif n_neighbors_array.size == 1:
+        n_neighbors_value = float(n_neighbors_array.ravel()[0])
+    else:
+        raise TypeError(
+            "n_neighbors must be a scalar or a length-1 array-like value, "
+            f"got shape {n_neighbors_array.shape}."
+        )
+
+    if not np.isfinite(n_neighbors_value) or n_neighbors_value <= 0:
+        raise ValueError("n_neighbors must be a positive finite value")
+
+    return n_neighbors_value
 
 
 def _split_marker_genes(dict_cats, var_names, *, verbose: bool):
@@ -92,7 +101,10 @@ def _marker_expression_matrix(adata, marker_genes):
 
 
 def _smooth_marker_expression(
-    adata, marker_genes, connectivities, n_neighbors: float
+    adata,
+    marker_genes,
+    connectivities,
+    n_neighbors: float,
 ) -> np.ndarray:
     """Smooth all marker genes over the neighbour graph in one matrix product."""
     if not marker_genes:
@@ -155,9 +167,17 @@ def _category_score_matrix(
     return category_scores
 
 
-def _map_cluster_stat(adata, column_groupby: str, values_by_cluster):
-    """Map a per-cluster Series back to cells."""
-    return adata.obs[column_groupby].map(values_by_cluster)
+def _map_cluster_values_to_obs(obs_group, values_by_cluster, *, numeric: bool = False):
+    """Map cluster-level values back to cells.
+
+    Pandas may preserve Categorical dtype when mapping from a categorical
+    obs column, even if the mapped values are floats. For score columns we
+    explicitly coerce back to numeric.
+    """
+    mapped = obs_group.map(values_by_cluster)
+    if numeric:
+        return pd.to_numeric(mapped, errors="coerce")
+    return mapped
 
 
 def assign_cats(
@@ -229,7 +249,15 @@ def assign_cats(
         verbose=verbose,
     )
 
-    smoothed_markers = _smooth_marker_expression(adata, marker_genes, connectivities, n_neighbors)
+    if not marker_genes:
+        raise ValueError("None of the marker genes in dict_cats were found in adata.var_names")
+
+    smoothed_markers = _smooth_marker_expression(
+        adata,
+        marker_genes,
+        connectivities,
+        n_neighbors,
+    )
     ranked_markers = _rank_positive_columns(smoothed_markers)
     category_scores = _category_score_matrix(
         ranked_markers,
@@ -244,24 +272,37 @@ def assign_cats(
 
     score_per_cluster = (
         adata.obs[[column_groupby] + category_names]
-        .groupby(column_groupby)
+        .groupby(column_groupby, observed=True)
         .quantile(quantile_gene_sel)
     )
 
-    cluster_std = score_per_cluster.std(axis=1)
-    cluster_mean = score_per_cluster.mean(axis=1)
-    cluster_max = score_per_cluster.max(axis=1)
+    adata.obs[f"{key_added}_max"] = _map_cluster_values_to_obs(
+        adata.obs[column_groupby],
+        score_per_cluster.max(axis=1).to_dict(),
+        numeric=True,
+    )
 
-    adata.obs[f"{key_added}_std"] = _map_cluster_stat(adata, column_groupby, cluster_std)
-    adata.obs[f"{key_added}_mean"] = _map_cluster_stat(adata, column_groupby, cluster_mean)
-    adata.obs[f"{key_added}_max"] = _map_cluster_stat(adata, column_groupby, cluster_max)
-    adata.obs[f"{key_added}_CV"] = adata.obs[f"{key_added}_mean"] / adata.obs[f"{key_added}_std"]
+    adata.obs[f"{key_added}_mean"] = _map_cluster_values_to_obs(
+        adata.obs[column_groupby],
+        score_per_cluster.mean(axis=1).to_dict(),
+        numeric=True,
+    )
+
+    adata.obs[f"{key_added}_std"] = _map_cluster_values_to_obs(
+        adata.obs[column_groupby],
+        score_per_cluster.std(axis=1).to_dict(),
+        numeric=True,
+    )
+
+    adata.obs[f"{key_added}_CV"] = (
+        adata.obs[f"{key_added}_mean"] / adata.obs[f"{key_added}_std"].replace(0, np.nan)
+    )
 
     for category in score_per_cluster.columns:
-        adata.obs[f"{key_added}_{category}"] = _map_cluster_stat(
-            adata,
-            column_groupby,
-            score_per_cluster[category],
+        adata.obs[f"{key_added}_{category}"] = _map_cluster_values_to_obs(
+            adata.obs[column_groupby],
+            score_per_cluster[category].to_dict(),
+            numeric=True,
         )
 
     if intermediate_states:
@@ -274,7 +315,12 @@ def assign_cats(
     else:
         final_cat_by_cluster = score_per_cluster.idxmax(axis=1).to_dict()
 
-    adata.obs[key_added] = adata.obs[column_groupby].map(final_cat_by_cluster).astype(str)
+    adata.obs[key_added] = _map_cluster_values_to_obs(
+        adata.obs[column_groupby],
+        final_cat_by_cluster,
+        numeric=False,
+    ).astype(str)
+
     adata.obs.loc[adata.obs[f"{key_added}_max"] < min_score, key_added] = others_name
 
     if "cell_assign" not in adata.uns:
