@@ -294,9 +294,9 @@ def assign_cats(
         numeric=True,
     )
 
-    adata.obs[f"{key_added}_CV"] = (
-        adata.obs[f"{key_added}_mean"] / adata.obs[f"{key_added}_std"].replace(0, np.nan)
-    )
+    adata.obs[f"{key_added}_CV"] = adata.obs[f"{key_added}_mean"] / adata.obs[
+        f"{key_added}_std"
+    ].replace(0, np.nan)
 
     for category in score_per_cluster.columns:
         adata.obs[f"{key_added}_{category}"] = _map_cluster_values_to_obs(
