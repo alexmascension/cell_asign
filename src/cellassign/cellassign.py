@@ -66,31 +66,21 @@ def assign_cats(
     )
 
     max_cat_dict_std = dict(zip(score_per_cluster.std(1).index, score_per_cluster.std(1).values))
-    adata.obs[f"{key_added}_std"] = [
-        max_cat_dict_std[i] for i in adata.obs[column_groupby]
-    ]
+    adata.obs[f"{key_added}_std"] = [max_cat_dict_std[i] for i in adata.obs[column_groupby]]
 
     max_cat_dict_mean = dict(
         zip(score_per_cluster.mean(1).index, score_per_cluster.mean(1).values)
     )
-    adata.obs[f"{key_added}_mean"] = [
-        max_cat_dict_mean[i] for i in adata.obs[column_groupby]
-    ]
+    adata.obs[f"{key_added}_mean"] = [max_cat_dict_mean[i] for i in adata.obs[column_groupby]]
 
     max_cat_dict_max = dict(zip(score_per_cluster.max(1).index, score_per_cluster.max(1).values))
-    adata.obs[f"{key_added}_max"] = [
-        max_cat_dict_max[i] for i in adata.obs[column_groupby]
-    ]
+    adata.obs[f"{key_added}_max"] = [max_cat_dict_max[i] for i in adata.obs[column_groupby]]
 
-    adata.obs[f"{key_added}_CV"] = adata.obs[f"{key_added}_mean"] / adata.obs[
-        f"{key_added}_std"
-    ]
+    adata.obs[f"{key_added}_CV"] = adata.obs[f"{key_added}_mean"] / adata.obs[f"{key_added}_std"]
 
     for cat in score_per_cluster.columns:
         max_cat_dict = dict(zip(score_per_cluster.index, score_per_cluster[cat].values))
-        adata.obs[f"{key_added}_{cat}"] = [
-            max_cat_dict[i] for i in adata.obs[column_groupby]
-        ]
+        adata.obs[f"{key_added}_{cat}"] = [max_cat_dict[i] for i in adata.obs[column_groupby]]
 
     # For each cluster we will identify which categories are close to the highest one,
     # and merge their names.
