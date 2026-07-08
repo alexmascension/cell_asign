@@ -23,7 +23,7 @@ def _get_connectivities(adata):
 
 
 def _get_n_neighbors(adata, connectivities) -> float:
-    """Return the n_neighbors as a normalization factor for the joint 
+    """Return the n_neighbors as a normalization factor for the joint
     expression used to smooth out cells with extreme expression."""
     try:
         n_neighbors = adata.uns["neighbors"]["params"]["n_neighbors"]
@@ -91,8 +91,9 @@ def _marker_expression_matrix(adata, marker_genes):
     return sparse.csr_matrix(np.asarray(x_markers))
 
 
-def _smooth_marker_expression(adata, marker_genes, connectivities, 
-                              n_neighbors: float) -> np.ndarray:
+def _smooth_marker_expression(
+    adata, marker_genes, connectivities, n_neighbors: float
+) -> np.ndarray:
     """Smooth all marker genes over the neighbour graph in one matrix product."""
     if not marker_genes:
         return np.zeros((adata.n_obs, 0), dtype=float)
@@ -254,9 +255,7 @@ def assign_cats(
     adata.obs[f"{key_added}_std"] = _map_cluster_stat(adata, column_groupby, cluster_std)
     adata.obs[f"{key_added}_mean"] = _map_cluster_stat(adata, column_groupby, cluster_mean)
     adata.obs[f"{key_added}_max"] = _map_cluster_stat(adata, column_groupby, cluster_max)
-    adata.obs[f"{key_added}_CV"] = adata.obs[f"{key_added}_mean"] / adata.obs[
-        f"{key_added}_std"
-    ]
+    adata.obs[f"{key_added}_CV"] = adata.obs[f"{key_added}_mean"] / adata.obs[f"{key_added}_std"]
 
     for category in score_per_cluster.columns:
         adata.obs[f"{key_added}_{category}"] = _map_cluster_stat(
@@ -297,4 +296,3 @@ def assign_cats(
     if do_return:
         return score_per_cluster
     return None
-
