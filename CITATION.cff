@@ -1,9 +1,20 @@
 cff-version: 1.2.0
-title: cellassign
-message: "If you use this software, please cite it using the metadata from this file."
+message: "If you use cellassign, please cite it as below."
 type: software
-authors:
-  - name: "Alex Mascension"
-repository-code: "https://github.com/alexmascension/cell_asign"
+title: "cellassign: Lightweight marker-based assignment of cell categories in AnnData objects."
 version: "1.0.1"
-license: MIT
+doi: "10.5281/zenodo.21264220"
+date-released: "2026-07-08"
+url: "https://github.com/alexmascension/cell_asign"
+repository-code: "https://github.com/alexmascension/cell_asign"
+license: "MIT"
+authors:
+  - family-names: "Ascensión"
+    given-names: "Alex M."
+keywords:
+  - single-cell
+  - scRNA-seq
+  - cell type annotation
+  - marker genes
+  - AnnData
+  - Scanpy

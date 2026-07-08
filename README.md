@@ -5,6 +5,8 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/cellassign.svg)](https://pypi.org/project/cellassign/)
 [![License](https://img.shields.io/pypi/l/cellassign.svg)](https://github.com/alexmascension/cell_asign/blob/master/LICENSE)
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21264220.svg)](https://doi.org/10.5281/zenodo.21264220)
+
 
 Lightweight marker-based assignment of cell categories in AnnData objects.
 
@@ -252,6 +254,8 @@ If you use `cellassign`, please cite this repository:
   version = {1.0.1}
 }
 ```
+
+> Ascensión, Alex M. (2026). *cellassign: Lightweight marker-based assignment of cell categories in AnnData objects.*. Zenodo. https://doi.org/10.5281/zenodo.21264220
 
 A `CITATION.cff` file is also provided for citation managers and GitHub citation metadata.
 
