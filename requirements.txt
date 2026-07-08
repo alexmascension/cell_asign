@@ -1,4 +1,0 @@
-scanpy
-scipy
-numpy
-pandas

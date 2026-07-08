@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+title: cellassign
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+authors:
+  - name: "Alex Mascension"
+repository-code: "https://github.com/alexmascension/cell_asign"
+version: "1.0.1"
+license: MIT
