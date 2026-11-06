@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.0
+
+Packaging only; no change in behaviour or outputs.
+
+- License declared as an SPDX expression (`license = "MIT"`, `license-files = ["LICENSE"]`)
+  instead of the deprecated `License :: OSI Approved :: MIT License` classifier.
+- Build requirement raised to `setuptools>=77` (needed for SPDX license expressions).
+
 ## 2.0.0
 
 Breaking release: scores, defaults and output columns change.
