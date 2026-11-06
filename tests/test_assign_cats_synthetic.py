@@ -1,5 +1,8 @@
 """Fast synthetic tests for marker-based category assignment.
 
+The toy matrices have no non-marker expressed genes, so the null model is
+disabled (``null_correction=False``); it is tested in test_assign_cats_methodology.
+
 These tests intentionally avoid scanpy. They construct the minimal AnnData
 fields used by ``assign_cats`` directly:
 
@@ -60,6 +63,7 @@ def test_assign_cats_assigns_expected_labels_on_sparse_input():
         key_added="cell_type",
         min_score=0.2,
         verbose=False,
+        null_correction=False,
     )
 
     assert result is None
@@ -79,6 +83,7 @@ def test_assign_cats_assigns_expected_labels_on_dense_input():
         key_added="cell_type",
         min_score=0.2,
         verbose=False,
+        null_correction=False,
     )
 
     assert adata.obs.loc[adata.obs["leiden"] == "0", "cell_type"].unique().tolist() == ["T_cells"]
@@ -96,6 +101,7 @@ def test_assign_cats_do_return_returns_cluster_scores():
         min_score=0.2,
         do_return=True,
         verbose=False,
+        null_correction=False,
     )
 
     assert list(scores.index) == ["0", "1"]
@@ -115,6 +121,7 @@ def test_assign_cats_respects_min_score_unassigned():
         min_score=1.1,
         others_name="unassigned",
         verbose=False,
+        null_correction=False,
     )
 
     assert set(adata.obs["cell_type"]) == {"unassigned"}
@@ -134,6 +141,7 @@ def test_assign_cats_handles_missing_marker_gene_without_failing():
         key_added="cell_type",
         min_score=0.2,
         verbose=False,
+        null_correction=False,
     )
 
     assert "cell_type" in adata.obs
@@ -163,6 +171,7 @@ def test_assign_cats_intermediate_states_for_tied_categories():
         intermediate_states=True,
         diff=0.01,
         verbose=False,
+        null_correction=False,
     )
 
     assert set(adata.obs.loc[adata.obs["leiden"] == "0", "cell_type"]) == {"type_a/type_b"}

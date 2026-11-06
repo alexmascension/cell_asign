@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use cellassign, please cite it as below."
 type: software
 title: "cellassign: Lightweight marker-based assignment of cell categories in AnnData objects."
-version: "1.0.1"
+version: "2.0.0"
 doi: "10.5281/zenodo.21264220"
 date-released: "2026-07-08"
 url: "https://github.com/alexmascension/cell_asign"

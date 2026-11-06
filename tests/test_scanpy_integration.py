@@ -48,9 +48,12 @@ def test_assign_cats_runs_on_scanpy_pbmc3k_processed_basic():
         min_score=0.0,
         do_return=True,
         verbose=False,
+        use_raw=True,
     )
 
     assert "cell_type_marker" in adata.obs
     assert adata.obs["cell_type_marker"].notna().all()
     assert set(scores.columns) == set(markers)
     assert scores.shape[0] == adata.obs["louvain"].nunique()
+    summary = adata.uns["cell_assign"]["cell_type_marker"]["cluster_summary"]
+    assert summary["loo_stability"].between(0, 1).all()

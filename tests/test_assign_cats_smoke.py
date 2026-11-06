@@ -37,6 +37,7 @@ def test_assign_cats_smoke_synthetic_anndata() -> None:
         key_added="assigned_cats",
         min_score=0.0,
         verbose=False,
+        null_correction=False,
     )
 
     assert "assigned_cats" in adata.obs
