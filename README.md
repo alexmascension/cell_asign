@@ -354,7 +354,7 @@ If you use `cellassign`, please cite this repository:
   author = {Ascensión, Alex M.},
   title = {cellassign: marker-based cell category assignment for AnnData objects},
   url = {https://github.com/alexmascension/cell_asign},
-  version = {2.0.0}
+  version = {2.1.0}
 }
 ```
 
